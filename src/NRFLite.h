@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <nRF24L01.h>
+#include <SPI.h>
 
 #ifndef _BV
 #define _BV(bit) (1 << (bit))
@@ -13,9 +14,11 @@ class NRFLite {
   public:
     
     // Constructors
+    // Optionally pass in an Arduino SPIClass.  If none is provided, the default SPI bus is used.
+    NRFLite() { _spi = &SPI; }
+    NRFLite(SPIClass * spi) : _spi(spi) {}
     // Optionally pass in an Arduino Serial or SoftwareSerial object for use throughout the library when debugging.
     // Use the debug and debugln DEFINES in NRFLite.cpp to use the serial object.
-    NRFLite() {}
     NRFLite(Stream &serial) : _serial(&serial) {}
     
     enum Bitrates { BITRATE2MBPS, BITRATE1MBPS, BITRATE250KBPS };
@@ -89,6 +92,7 @@ class NRFLite {
     enum SpiTransferType { READ_OPERATION, WRITE_OPERATION };
 
     Stream *_serial;
+    SPIClass *_spi;
     volatile uint8_t *_momi_PORT;
     volatile uint8_t *_momi_DDR;
     volatile uint8_t *_momi_PIN;
