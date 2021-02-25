@@ -42,7 +42,7 @@ uint8_t NRFLite::init(uint8_t radioId, uint8_t cePin, uint8_t csnPin, Bitrates b
             // Arduino SPI makes SS (D10 on ATmega328) an output and sets it HIGH.  It must remain an output
             // for Master SPI operation, but in case it started as LOW, we'll set it back.
             uint8_t savedSS = digitalRead(SS);
-            SPI.begin();
+            _spi->begin();
             if (_csnPin != SS) digitalWrite(SS, savedSS);
         }
     #endif
@@ -577,13 +577,13 @@ void NRFLite::spiTransfer(SpiTransferType transferType, uint8_t regName, void *d
             }
         #else
             // Transfer with the Arduino SPI library.
-            SPI.beginTransaction(SPISettings(NRF_SPICLOCK, MSBFIRST, SPI_MODE0));
-            SPI.transfer(regName);
+            _spi->beginTransaction(SPISettings(NRF_SPICLOCK, MSBFIRST, SPI_MODE0));
+            _spi->transfer(regName);
             for (uint8_t i = 0; i < length; ++i) {
-                uint8_t newData = SPI.transfer(intData[i]);
+                uint8_t newData = _spi->transfer(intData[i]);
                 if (transferType == READ_OPERATION) { intData[i] = newData; }
             }
-            SPI.endTransaction();
+            _spi->endTransaction();
         #endif
 
         digitalWrite(_csnPin, HIGH); // Stop radio from listening to the SPI bus.
